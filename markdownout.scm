@@ -263,8 +263,10 @@
 (define (md-equation x)
   ;; HACK
   (let*  ((s (md-math x #t))
-          (s1 (string-replace s "\\[" "\\\\["))
-          (s2 (string-replace s1 "\\]" "\\\\]"))
+          ; (s1 (string-replace s "\\[" "\\\\["))
+          (s1 (string-replace s "\\[" "$$\n"))
+          ; (s2 (string-replace s1 "\\]" "\\\\]"))
+          (s2 (string-replace s1 "\\]" "\n$$"))
           (lines (string-split s2 #\newline)))
     (with-global num-line-breaks 1
       (serialize-markdown
