@@ -1,5 +1,7 @@
 # tm2md #
 
+Note: Original code in [bitbucket](https://bitbucket.org/mdbenito/tm2md/src), this is my modified code.
+
 **tm2md** is a converter to markdown format
 for [TeXmacs](http://www.texmacs.org/).
 
