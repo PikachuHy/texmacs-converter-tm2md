@@ -163,7 +163,7 @@
                    ,@(map serialize-markdown (cdr x))))
             (if (> n 4)  ; Special handling of TeXmacs <paragraph>
                 (string-append res " ")
-                res)))))
+                (md-string res))))))
 
 (define (md-environment x)
   (set! environment-nr (+ 1 environment-nr))
@@ -279,7 +279,7 @@
 (define (md-doc-title x)
   (set! doc-title (md-string (serialize-markdown (cdr x))))
   (if (hugo-extensions?) ""
-      ((md-header 1) (cdr x))))
+      ((md-header 1) x)))
 
 (define (md-block x)
   (with-global num-line-breaks 1
