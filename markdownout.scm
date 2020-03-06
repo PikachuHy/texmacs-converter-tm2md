@@ -406,7 +406,6 @@
            (list 'lemma* md-environment*)           
            (list 'proof md-environment)
            (list 'dueto md-dueto)
-           (list 'math md-math)
            (list 'concat md-concat)
            (list 'itemize md-list)
            (list 'enumerate md-list)
