@@ -100,11 +100,17 @@
                  ("texmacs->latex:use-macros" . "off"))
  (texmacs->latex t options)))
 
+(define (hack-math x)
+  (let*  ((s (serialize-latex (math->latex x)))
+          (s1 (string-replace s "\\ensuremath" ""))
+         )
+         s1))
+
 (define (md-math x)
-   (list (serialize-latex (math->latex x))))
+   (list (hack-math x)))
 
 (define (md-equation x)
-  (let*  ((s (serialize-latex (math->latex x)))
+  (let*  ((s (hack-math x))
           (s1 (string-replace s "\\[" "$$\n"))
           (s2 (string-replace s1 "\\]" "\n$$"))
          )
@@ -115,7 +121,7 @@
 (define (md-eqnarray* x)
    (list (string-append 
               "$$\n" 
-              (serialize-latex (math->latex x)) 
+              (hack-math x) 
               "\n$$")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
