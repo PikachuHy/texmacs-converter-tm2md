@@ -90,6 +90,22 @@
   (lambda (x)
     `(block ,syntax ,@(cdr x))))
 
+(define (math->latex t)
+ "Converts the TeXmacs tree @t into internal LaTeX representation"
+ (with options '(("texmacs->latex:replace-style" . "on")
+                 ("texmacs->latex:expand-macros" . "on")
+                 ("texmacs->latex:expand-user-macros" . "off")
+                 ("texmacs->latex:indirect-bib" . "off")
+                 ("texmacs->latex:encoding" . "utf8")
+                 ("texmacs->latex:use-macros" . "off"))
+ (texmacs->latex t options)))
+
+(define (md-eqnarray* x)
+   (list (string-append 
+              "$$\n" 
+              (serialize-latex (math->latex x)) 
+              "\n$$")))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Dispatch
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -145,6 +161,7 @@
            (list 'math identity)
            (list 'equation identity)
            (list 'equation* identity)
+           (list 'eqnarray* md-eqnarray*)
            (list 'concat keep)
            (list 'doc-title keep)
            (list 'doc-running-author keep)
