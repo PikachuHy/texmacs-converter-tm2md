@@ -260,17 +260,7 @@
        (string-replace (serialize-latex (md-math* ltx)) "\n" " ")
        (serialize-latex (md-math* ltx)))))
 
-(define (md-equation x)
-  ;; HACK
-  (let*  ((s (md-math x #t))
-          ; (s1 (string-replace s "\\[" "\\\\["))
-          (s1 (string-replace s "\\[" "$$\n"))
-          ; (s2 (string-replace s1 "\\]" "\\\\]"))
-          (s2 (string-replace s1 "\\]" "\n$$"))
-          (lines (string-split s2 #\newline)))
-    (with-global num-line-breaks 1
-      (serialize-markdown
-       `(document ,@lines)))))
+
 
 (define (md-eqref x)
   (let* ((label (cadr x))
@@ -417,8 +407,6 @@
            (list 'proof md-environment)
            (list 'dueto md-dueto)
            (list 'math md-math)
-           (list 'equation md-equation)
-           (list 'equation* md-equation)
            (list 'concat md-concat)
            (list 'itemize md-list)
            (list 'enumerate md-list)

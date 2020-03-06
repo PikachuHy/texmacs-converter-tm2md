@@ -100,6 +100,15 @@
                  ("texmacs->latex:use-macros" . "off"))
  (texmacs->latex t options)))
 
+(define (md-equation x)
+  (let*  ((s (serialize-latex (math->latex x)))
+          (s1 (string-replace s "\\[" "$$\n"))
+          (s2 (string-replace s1 "\\]" "\n$$"))
+         )
+          (list s2)
+          ; (list "equation")
+          ))
+          
 (define (md-eqnarray* x)
    (list (string-append 
               "$$\n" 
@@ -159,8 +168,8 @@
            (list 'proof* keep)                      
            (list 'dueto keep)
            (list 'math identity)
-           (list 'equation identity)
-           (list 'equation* identity)
+           (list 'equation md-equation)
+           (list 'equation* md-equation)
            (list 'eqnarray* md-eqnarray*)
            (list 'concat keep)
            (list 'doc-title keep)
