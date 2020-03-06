@@ -99,28 +99,6 @@
           (display* "postlude-add: bogus input " x "\n")
           (noop))))
 
-; There are probably a dozen functions in TeXmacs doing the 
-; very same thing as these two...
-(define (replace-fun-sub where what? by)
-  (if (npair? where) (if (what? where) (by where) where)
-      (cons (if (what? (car where)) (by (car where))
-                (replace-fun-sub (car where) what? by))
-            (replace-fun-sub (cdr where) what? by))))
-
-; This looks familiar... :/
-(define (replace-fun where what by)
- (cond ((not (procedure? what))
-        (replace-fun where (cut == <> what) by))
-       ((not (procedure? by))
-        (replace-fun where what (lambda (x) by)))
-       (else (replace-fun-sub where what by))))
-
-(define (replace-fun-list where rules)
-  (if (and (list>0? rules) (pair? (car rules)))
-      (replace-fun (replace-fun-list where (cdr rules))
-                   (caar rules) (cdar rules))
-      where))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; markdown to string serializations
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -187,16 +165,6 @@
                 (string-append res " ")
                 res)))))
 
-(define (math->latex t)
- "Converts the TeXmacs tree @t into internal LaTeX representation"
- (with options '(("texmacs->latex:replace-style" . "on")
-                 ("texmacs->latex:expand-macros" . "on")
-                 ("texmacs->latex:expand-user-macros" . "off")
-                 ("texmacs->latex:indirect-bib" . "off")
-                 ("texmacs->latex:encoding" . "utf8")
-                 ("texmacs->latex:use-macros" . "off"))
- (texmacs->latex t options)))
-
 (define (md-environment x)
   (set! environment-nr (+ 1 environment-nr))
   (set! label-nr (+ 1 label-nr))
@@ -218,49 +186,6 @@
 (define (md-dueto x)
   (serialize-markdown
    `(concat " " (em (concat "(" ,(cadr x) ")")) " ")))
-
-(define (md-fix-math-row t)
-  "Append backslashes to last item in a !row"
-  (if (and (func? t '!row) (list>1? t))
-      (with cols (cdr t)
-        `(!row ,@(cDr cols) (!concat ,(cAr cols) "\\\\\\\\")))
-      t))
-
-(define (md-fix-math-table t)
-  "Append extra backslashes at the end of !rows in LaTeX tables"
-  (if (not (list>1? (cdr t))) t  ; Nothing to do with only one row
-      (let* ((rows (cdr t))
-             (last-row (cAr rows))
-             (first-rows (cDr rows)))
-        `(!table ,@(map md-fix-math-row first-rows) ,last-row))))
-
-(define (md-math* t)
-  (replace-fun-list t
-   `((mathbbm . mathbb)
-     ((_) . "\\_")
-     (({) . (lbrace))
-     ((}) . (rbrace))
-     ((left\{) . (left\lbrace))
-     ((right\}) . (right\rbrace))
-     (,(cut func? <> '!table) . ,md-fix-math-table)
-     (,(cut func? <> 'ensuremath) . ,cadr)
-     (,(cut func? <> '!sub) . 
-       ,(lambda (x) (cons "\\_" (cdr x))))
-     (,(cut func? <> 'label) .   ; append tags to labels
-       ,(lambda (x)
-          (set! equation-nr (+ 1 equation-nr))
-          (with label-name (number->string equation-nr)
-            (ahash-set! labels (cadr x) label-name)
-            (list '!concat x `(tag ,label-name))))))))
-
-(define (md-math x . leave-newlines?)
- "Takes an stree @x, and returns a valid MathJax-compatible LaTeX string"
- (with ltx (math->latex x)
-   (if (null? leave-newlines?)
-       (string-replace (serialize-latex (md-math* ltx)) "\n" " ")
-       (serialize-latex (md-math* ltx)))))
-
-
 
 (define (md-eqref x)
   (let* ((label (cadr x))
