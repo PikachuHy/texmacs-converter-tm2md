@@ -119,10 +119,14 @@
           ))
 
 (define (md-eqnarray* x)
-   (list (string-append 
+   (let* ((s (hack-math x))
+          (s1 (string-replace s "\\begin{eqnarray*}" "\\begin{array}{rcl}"))
+          (s2 (string-replace s1 "\\end{eqnarray*}" "\\end{array}")))
+          (list (string-append 
               "$$\n" 
-              (hack-math x) 
-              "\n$$")))
+              s2 
+              "\n$$"))))
+   
 
 (define (md-keep-string x) 
     (cons (symbol->string (car x)) (map texmacs->markdown* (cdr x))))
