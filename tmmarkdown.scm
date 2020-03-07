@@ -126,6 +126,45 @@
 
 (define (md-keep-string x) 
     (cons (symbol->string (car x)) (map texmacs->markdown* (cdr x))))
+
+(define (md-session x) 
+  (let ((language-name (cadr x))
+        (session-list (cdr (cadr (cddr x))))
+       )
+       (map (lambda (single-session) (md-session-sub single-session language-name)) session-list)
+  )
+)
+
+(define (md-session-sub x language-name) 
+  
+  (let* ((session-name (get-session-name (cadr x)))
+         (input-doc (caddr x))
+         (input-content (cdr input-doc))
+         (output-doc (cond ((== (length x) 4) (cadddr x)) 
+                           (else '())))
+         (output-content (cond ((>= (length output-doc) 2) (cdr output-doc))
+                               (else "")
+                                ))
+        )
+    (cons 'session `(" " "```" ,language-name " " 
+       ,(language-comment-symbol language-name) ,session-name " "
+       ,@(insert-newline-in-list input-content) " "
+       "```" " "
+       ,@(insert-newline-in-list output-content) " "))))
+
+(define (language-comment-symbol s)
+        (cond ((== "scheme" s) ";;; ")
+              ((== "python" s) "### ")
+              (else "// ")
+        ))
+(define (get-session-name x)
+  (cond ((list? x) (cadr x))
+        ((string? x) x)
+        (else "")))
+
+(define (insert-newline-in-list x)
+  (cond ((nlist>0? x) '())
+        (else `(,(car x) " "  ,@(insert-newline-in-list (cdr x))))))  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Dispatch
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -216,6 +255,7 @@
            (list 'footnote keep)
            (list 'bibliography drop)
            (list 'hide-preamble drop)
+           (list 'session md-session)
            (list 'tags keep)  ; extension in paperwhy.ts for Hugo tags
            (list 'hugo keep)  ; extension in paperwhy.ts for Hugo shortcodes
            ))

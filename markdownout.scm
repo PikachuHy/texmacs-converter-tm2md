@@ -298,6 +298,13 @@
        `("{{< " ,(cadr x) " " ,@(list-intersperse (cddr x) " ") " >}}"))
       ""))
 
+(define (session->string x)
+  (string-concatenate (map (lambda (s) (space->newline s)) (cdr x))))
+
+(define (space->newline s) 
+  (cond ((== " " s) "\n")
+        ((== "```" s) s)
+        (else (md-string s))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; dispatch
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -350,6 +357,7 @@
            (list 'footnote md-footnote)
            (list 'figure md-figure)
            (list 'hlink md-hlink)
+           (list 'session session->string)
            (list 'tags md-hugo-tags)  ; Hugo extension
            (list 'hugo md-hugo-shortcode)  ; Hugo extension
            ))
