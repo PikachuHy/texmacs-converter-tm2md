@@ -124,13 +124,16 @@
               (hack-math x) 
               "\n$$")))
 
+(define (md-keep-string x) 
+    (cons (symbol->string (car x)) (map texmacs->markdown* (cdr x))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Dispatch
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define conversion-hash (make-ahash-table))
 (map (lambda (l) (apply (cut ahash-set! conversion-hash <> <>) l)) 
-     (list (list 'strong keep)
+     (list (list 'TeXmacs md-keep-string)
+           (list 'strong keep)
            (list 'dfn (change-to 'strong))
            (list 'em keep)
            (list 'strike-through (change-to 'strike)) ; non-standard extension
