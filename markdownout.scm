@@ -252,10 +252,18 @@
   (with detail (cAr x)
       (string-append (md-cite (cDr x)) " (" detail ")")))
 
+;;; hack
+(define (md-hlink-sub x)
+  (cond ((string? x) x)
+        ((== (car x) 'hlink) (cadr x))
+        (else "")
+  )
+)
+
 (define (md-hlink x)
   (with payload (cdr x)
     (string-append "[" (serialize-markdown (car payload)) "]"
-                   "(" (cadr payload) ")")))    
+                   "(" (md-hlink-sub (cadr payload)) ")")))    
 
 (define (md-figure x)
   (with payload (cdr x)
