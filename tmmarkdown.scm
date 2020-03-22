@@ -80,6 +80,15 @@
                   (texmacs->png x)
                   '(document "Wrong image src"))))
     (list 'figure src caption)))
+    
+(define (parse-small-figure x)
+  (let* ((offset (if (func? x 'small-figure) 0 2))
+         (img (tm-ref x offset))
+         (caption (texmacs->markdown* (tm-ref x (+ 1 offset))))
+         (src (if (tm-is? img 'image) 
+                  (texmacs->png x)
+                  '(document "Wrong image src"))))
+    (list 'figure src caption)))
 
 (define (parse-with x)
   ; HACK: we end up calling ourselves with (with "stuff"), which
@@ -296,7 +305,7 @@
            (list 'label keep)
            (list 'reference keep)
            (list 'big-figure parse-big-figure)
-           (list 'small-figure parse-big-figure)
+           (list 'small-figure parse-small-figure)
            (list 'image md-image)
            ;(list 'render-big-figure parse-big-figure)
            (list 'footnote keep)
