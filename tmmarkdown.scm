@@ -148,8 +148,33 @@
 (define (md-keep-string x) 
     (cons (symbol->string (car x)) (map texmacs->markdown* (cdr x))))
 
+(define (scheme-input x) 
+  (let* ((input-doc (list-ref x 2))
+         (input-content (cdr input-doc))
+       )
+     input-content
+   )
+)
+
+(define (scheme-output x)
+   (cond ((< (length x) 4) "")
+         (else 
+           (let* ((output-doc (list-ref x 3))
+                  
+                 )
+                 (map (lambda (it)
+                              (cond ((string? it) it)
+                                    (else "")
+                              ))
+                       output-doc
+            )
+           )
+         )
+   )
+  )
+
 (define (md-session x) 
-  (let ((language-name (cadr x))
+  (let ((language-name (list-ref x 1))
         (session-list (cdr (cadr (cddr x))))
        )
        (map (lambda (single-session) (md-session-sub single-session language-name)) session-list)
@@ -157,22 +182,21 @@
 )
 
 (define (md-session-sub x language-name) 
-  
-  (let* ((session-name (get-session-name (cadr x)))
-         (input-doc (caddr x))
-         (input-content (cdr input-doc))
-         (output-doc (cond ((== (length x) 4) (cadddr x)) 
-                           (else '())))
-         (output-content (cond ((>= (length output-doc) 2) (cdr output-doc))
-                               (else "")
-                                ))
+  (cond ((== (car x) 'session) (md-session x))
+        (else 
+           (let* ((session-name (get-session-name (cadr x)))
+         (input-content (scheme-input x))
+         (output-content (scheme-output x))
         )
     (cons 'session `(" " "```" ,language-name " " 
        ,(language-comment-symbol language-name) ,session-name " "
        ,@(insert-newline-in-list input-content) " "
        "```" " "
-       ,@(insert-newline-in-list output-content) " "))))
-
+       ,@(insert-newline-in-list output-content) " ")))  
+        )
+    )
+  
+  )
 (define (language-comment-symbol s)
         (cond ((== "scheme" s) ";;; ")
               ((== "python" s) "### ")

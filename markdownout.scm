@@ -354,7 +354,6 @@
            (list 'figure md-figure)
            (list 'hlink md-hlink)
            (list 'session session->string)
-           (list 'session skip)
            (list 'tags md-hugo-tags)  ; Hugo extension
            (list 'hugo md-hugo-shortcode)  ; Hugo extension
            ))
