@@ -258,14 +258,10 @@
                    "(" (cadr payload) ")")))    
 
 (define (md-figure x)
-  "Hugo {{< figure >}} shortcode"
-  (if (hugo-extensions?)
-      (with payload (cdr x)
-        (with-global num-line-breaks 0
+  (with payload (cdr x)
           (string-concatenate 
-           `("{{< figure src=\"" ,(car payload) 
-             "\" title=\"" ,@(map serialize-markdown (cdr payload)) "\" >}}"))))
-      ""))
+           `("![" ,@(map md-string (map serialize-markdown (cdr payload))) "](" ,(car payload) ")")))     
+      )
 
 (define (md-footnote x)
   ; Input: (footnote (document [stuff here]))
@@ -358,6 +354,7 @@
            (list 'figure md-figure)
            (list 'hlink md-hlink)
            (list 'session session->string)
+           (list 'session skip)
            (list 'tags md-hugo-tags)  ; Hugo extension
            (list 'hugo md-hugo-shortcode)  ; Hugo extension
            ))
@@ -384,6 +381,8 @@
          (string-concatenate
                 (map serialize-markdown x)))))
 
+(tm-define (s-md x) (serialize-markdown x))
+
 (tm-define (serialize-markdown-document x)
   (with-global file? #t
     (with-global num-line-breaks 2
@@ -404,3 +403,5 @@
                               (string-append (prelude)
                                              body
                                              postlude))))))))))))))))
+
+(tm-define (s-md-doc x) (serialize-markdown-document x))

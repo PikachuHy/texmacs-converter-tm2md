@@ -47,6 +47,23 @@
   (display* "Dropped " (car x) " !\n")
   '())
 
+(define (url-temp-ext ext)
+  (url-glue (url-temp) (string-append "." ext)))
+
+(define (texmacs->png x)
+  (let ((tmp-pdf (url-temp-ext "pdf")) (tmp-png (url-temp-ext "png")))
+  (begin
+    (print-snippet tmp-png x #t)
+    ;(file-convert tmp-pdf tmp-png)
+    (url-concretize tmp-png)
+    )
+    )
+  )
+
+(define (md-image x)
+  (list 'figure (texmacs->png x) "")
+  )
+
 (define (parse-big-figure x)
   ; Example input:
   ; (big-figure (image "path-to.jpeg" "251px" "251px" "" "") 
@@ -60,7 +77,7 @@
          (img (tm-ref x offset))
          (caption (texmacs->markdown* (tm-ref x (+ 1 offset))))
          (src (if (tm-is? img 'image) 
-                  (tm-ref img 0)
+                  (texmacs->png x)
                   '(document "Wrong image src"))))
     (list 'figure src caption)))
 
@@ -255,7 +272,9 @@
            (list 'label keep)
            (list 'reference keep)
            (list 'big-figure parse-big-figure)
-           (list 'render-big-figure parse-big-figure)
+           (list 'small-figure parse-big-figure)
+           (list 'image md-image)
+           ;(list 'render-big-figure parse-big-figure)
            (list 'footnote keep)
            (list 'bibliography drop)
            (list 'hide-preamble drop)
@@ -282,3 +301,5 @@
   (if (is-file? x)
       (texmacs->markdown* (car (select x '(body document))))
       (texmacs->markdown* x)))
+
+(tm-define (tm->md x) (texmacs->markdown x))
