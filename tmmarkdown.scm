@@ -128,14 +128,18 @@
 
 (define (hack-math x)
   (let*  ((s (serialize-latex (math->latex x)))
-          (s1 (string-replace s "\\ensuremath" ""))
+          (s (string-replace s "\\ensuremath" ""))
+          (s (string-replace s "\\begin{eqnarray}" "\\begin{array}{rcl}"))
+          (s (string-replace s "\\end{eqnarray}" "\\end{array}"))
+          (s (string-replace s "\\begin{equation}" "\\begin{array}{rcl}"))
+          (s (string-replace s "\\end{equation}" "\\end{array}"))
          )
-         s1))
+         s))
 
 (define (md-math x)
    (list (hack-math x)))
 
-(define (md-equation x)
+(define (md-equation* x)
   (let*  ((s (hack-math x))
           (s1 (string-replace s "\\[" "$$\n"))
           (s2 (string-replace s1 "\\]" "\n$$"))
@@ -152,7 +156,10 @@
               "$$\n" 
               s2 
               "\n$$"))))
-   
+
+(define (md-equation x)
+      (md-eqnarray* x)
+)
 
 (define (md-keep-string x) 
     (cons (symbol->string (car x)) (map texmacs->markdown* (cdr x))))
@@ -274,7 +281,7 @@
            (list 'dueto keep)
            (list 'math md-math)
            (list 'equation md-equation)
-           (list 'equation* md-equation)
+           (list 'equation* md-equation*)
            (list 'eqnarray* md-eqnarray*)
            (list 'concat keep)
            (list 'doc-title keep)
