@@ -314,6 +314,7 @@
            (list 'session md-session)
            (list 'tags keep)  ; extension in paperwhy.ts for Hugo tags
            (list 'hugo keep)  ; extension in paperwhy.ts for Hugo shortcodes
+           (list 'draw-over drop)
            ))
 
 (define (texmacs->markdown* x)
